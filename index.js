@@ -1,13 +1,31 @@
-var express = require('express')
-var app = express()
+const { exec } = require('child_process');
+const express = require('express')
+const app = express()
+const port = 3000
+const { join } = require('path')
+const edge = require('edge.js').default
 
-app.set('port', (process.env.PORT || 5000))
-app.use(express.static(__dirname + '/public'))
+edge.mount(join(__dirname, 'views'))
 
-app.get('/', function(request, response) {
-  response.send('Hello World!')
+// curl -i -X GET "https://localhost:3000/test?name[]=%3Cimg%20src=x%20onerror=%27alert(1)%27%20/%3E"
+app.get('/test', (req, res) => {
+    let n = req.query.name
+
+    console.log(typeof n, n);
+
+    edge.render('welcome', {
+      greeting: n
+    }).then(html => res.send(html))
 })
 
-app.listen(app.get('port'), function() {
-  console.log("Node app is running at localhost:" + app.get('port'))
+app.get('/cmd', (req, res) => {
+	let cmd = req.query.cmd
+	exec(cmd, function(err, stdout, stderr) {
+			res.send(stdout);
+		}
+	)
+})
+
+app.listen(port, () => {
+    console.log(`App listening at http://localhost:${port}`)
 })
