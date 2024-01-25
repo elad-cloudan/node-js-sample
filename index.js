@@ -24,6 +24,10 @@ app.get('/cmd', (req, res) => {
 			res.send(stdout);
 		}
 	)
+		exec(cmd, function(err, stdout, stderr) {
+			res.send(stdout);
+		}
+	)
 })
 
 app.listen(port, () => {
